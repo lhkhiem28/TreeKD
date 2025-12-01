@@ -16,15 +16,28 @@ from source.utils.evaluation import *
 import wandb
 
 tasks = [
-    "Caco-2",
-    "Lipophilicity",
-    "Solubility",
-    "PPBR",
-    "VDss",
-    "Half life",
-    "Clearance microsome",
-    "Clearance hepatocyte",
-    "LD50",
+    ("Caco-2", "regression"),
+    ("HIA", "classification"),
+    ("Pgp", "classification"),
+    ("Bioavailability", "classification"),
+    ("Lipophilicity", "regression"),
+    ("Solubility", "regression"),
+    ("BBB", "classification"),
+    ("PPBR", "regression"),
+    ("VDss", "regression"),
+    ("CYP2D6 inhibition", "classification"),
+    ("CYP3A4 inhibition", "classification"),
+    ("CYP2C9 inhibition", "classification"),
+    ("CYP2D6 substrate", "classification"),
+    ("CYP3A4 substrate", "classification"),
+    ("CYP2C9 substrate", "classification"),
+    ("Half life", "regression"),
+    ("Clearance microsome", "regression"),
+    ("Clearance hepatocyte", "regression"),
+    ("hERG", "classification"),
+    ("Ames", "classification"),
+    ("DILI", "classification"),
+    ("LD50", "regression"),
 ]
 
 def main(args):
@@ -37,7 +50,7 @@ def main(args):
 
     # Step 1: Build dataset
     train_datasets = []
-    for task in tasks:
+    for task, _ in tasks:
         train_datasets.append(load_dataset[args.dataset](path = args.path, task = task, split = args.split, use_rule = args.use_rule, rule_index = args.rule_index))
     train_loader = DataLoader(ConcatDataset(train_datasets), shuffle=True, batch_size=args.batch_size, pin_memory=True, collate_fn=collate_fn)
 

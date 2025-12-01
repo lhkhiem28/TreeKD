@@ -16,22 +16,35 @@ from source.utils.evaluation import *
 import wandb
 
 tasks = [
-    "Caco-2",
-    "Lipophilicity",
-    "Solubility",
-    "PPBR",
-    "VDss",
-    "Half life",
-    "Clearance microsome",
-    "Clearance hepatocyte",
-    "LD50",
+    ("Caco-2", "regression"),
+    ("HIA", "classification"),
+    ("Pgp", "classification"),
+    ("Bioavailability", "classification"),
+    ("Lipophilicity", "regression"),
+    ("Solubility", "regression"),
+    ("BBB", "classification"),
+    ("PPBR", "regression"),
+    ("VDss", "regression"),
+    ("CYP2D6 inhibition", "classification"),
+    ("CYP3A4 inhibition", "classification"),
+    ("CYP2C9 inhibition", "classification"),
+    ("CYP2D6 substrate", "classification"),
+    ("CYP3A4 substrate", "classification"),
+    ("CYP2C9 substrate", "classification"),
+    ("Half life", "regression"),
+    ("Clearance microsome", "regression"),
+    ("Clearance hepatocyte", "regression"),
+    ("hERG", "classification"),
+    ("Ames", "classification"),
+    ("DILI", "classification"),
+    ("LD50", "regression"),
 ]
 
 def main(args):
     seed = args.seed
     seed_everything(seed=seed)
 
-    for task in tasks:
+    for task, tasktype in tasks:
         # Step 1: Build dataset
         test_dataset = load_dataset[args.dataset](path = args.path, task = task, split = "test", use_rule = args.use_rule, rule_index = args.rule_index)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, pin_memory=True, collate_fn=collate_fn)
@@ -51,10 +64,15 @@ def main(args):
                 eval_outputs.append(output)
 
         # Step 4: Post-processing & report
-        scores = eval_funcs[args.dataset](eval_outputs)
-        print("MAE: {:.3f} | 1-Spearman: {:.3f} (Validity: {:.2f}%)".format(
-            *scores
-        ))
+        scores = eval_funcs[args.dataset](eval_outputs, tasktype)
+        if tasktype == "regression":
+            print("MAE: {:.3f} | Spearman: {:.3f} (Validity: {:.2f}%)".format(
+                *scores
+            ))
+        elif tasktype == "classification":
+            print("AUROC: {:.3f} | AUPRC: {:.3f} (Validity: {:.2f}%)".format(
+                *scores
+            ))
 
 if __name__ == "__main__":
     args = parse_args_llm().parse_args()

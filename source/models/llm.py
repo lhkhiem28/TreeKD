@@ -1,4 +1,5 @@
 import contextlib
+import numpy as np
 import torch
 from torch.cuda.amp import autocast as autocast
 from transformers import AutoTokenizer
@@ -60,7 +61,7 @@ class BaselineLLM(torch.nn.Module):
         if "grpo" in args.run_name:
             kwargs.pop("max_memory", None)
             kwargs.pop("device_map", None)
-        self.tokenizer = AutoTokenizer.from_pretrained(args.llm_path, use_fast=False, revision=kwargs["revision"])
+        self.tokenizer = AutoTokenizer.from_pretrained(args.llm_path, revision=kwargs["revision"])
         self.tokenizer.pad_token_id = 0
         self.tokenizer.padding_side = 'left'
         model = AutoModelForCausalLM.from_pretrained(
@@ -218,12 +219,26 @@ class BaselineLLM(torch.nn.Module):
                 pad_token_id=self.tokenizer.eos_token_id,
                 max_new_tokens=self.max_completion_length,
                 do_sample=False, temperature=self.temperature, top_k=50, top_p=1.0,
+                output_scores=True, return_dict_in_generate=True,
                 use_cache=True  # IMPORTANT!
             )
-        preds = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+
+            transition_scores = self.model.compute_transition_scores(
+                outputs.sequences, outputs.scores, 
+                normalize_logits=True
+            )
+            batch_token_scores = []
+            for i in range(batch_size):
+                token_scores = []
+                for token_id, transition_score in zip(outputs.sequences[i], transition_scores[i]):
+                    if token_id != self.tokenizer.eos_token_id:
+                        token_scores.append((self.tokenizer.decode(token_id).strip(), np.exp(transition_score.cpu().numpy())))
+                batch_token_scores.append(token_scores)
+
+        preds = self.tokenizer.batch_decode(outputs.sequences, skip_special_tokens=True)
         preds = [p.strip() for p in preds]
 
         return {"id": samples["id"],
                 "label": samples["label"],
-                "pred": preds,
+                "pred": preds, "token_scores": batch_token_scores,
         }
