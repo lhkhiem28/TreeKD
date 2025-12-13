@@ -1,3 +1,3 @@
-# RFKD
+# TreeKD
 
-Datasets: https://huggingface.co/datasets/lhkhiem28/RFKD-datasets
+Datasets: https://huggingface.co/datasets/lhkhiem28/TreeKD-datasets

@@ -1,8 +1,8 @@
 import argparse
 
 def parse_args_llm():
-    parser = argparse.ArgumentParser(description="RFKD")
-    parser.add_argument("--project", type=str, default="RFKD")
+    parser = argparse.ArgumentParser(description="TreeKD")
+    parser.add_argument("--project", type=str, default="TreeKD")
     parser.add_argument("--seed", type=int, default=0)
 
     # Model related
@@ -13,7 +13,7 @@ def parse_args_llm():
 
     # Model Training
     parser.add_argument("--dataset", type=str, default='generation')
-    parser.add_argument("--path", type=str, default='../RFKD-datasets')
+    parser.add_argument("--path", type=str, default='../TreeKD-datasets')
     parser.add_argument("--task", type=str, default='DrugADMET')
     parser.add_argument("--split", type=str, default="train")
     parser.add_argument("--lr", type=float, default=1e-5)
