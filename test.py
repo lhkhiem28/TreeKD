@@ -64,7 +64,7 @@ def main(args):
                 eval_outputs.append(output)
 
         # Step 4: Post-processing & report
-        scores = eval_funcs[args.dataset](eval_outputs, tasktype)
+        scores = eval_funcs[args.dataset](eval_outputs, tasktype, args.checkpoint_path)
         if tasktype == "regression":
             print("MAE: {:.3f} | Spearman: {:.3f} (Validity: {:.2f}%)".format(
                 *scores

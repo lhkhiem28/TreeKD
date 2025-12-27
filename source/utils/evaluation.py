@@ -1,7 +1,8 @@
 import pandas as pd
 
-def get_scores_generation(eval_outputs, tasktype):
+def get_scores_generation(eval_outputs, tasktype, checkpoint_path):
     df = pd.concat([pd.DataFrame(output) for output in eval_outputs])
+    df.to_csv(checkpoint_path.replace(".pth", ".csv"))
 
     if tasktype == "regression":
         from sklearn.metrics import mean_absolute_error
