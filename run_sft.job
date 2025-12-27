@@ -5,6 +5,6 @@
 #$ -q gpu@@lucy_a100
 #$ -l gpu=4
 #$ -N run_sft
-module load cuda/12.1; conda activate More
+module load cuda/12.1; conda activate MPP
 dos2unix *.sh
 bash run_sft.sh
